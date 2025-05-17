@@ -76,6 +76,7 @@ function filterByMinute(tripsByMinute, minute) {
 
 let departuresByMinute = Array.from({ length: 1440 }, () => []);
 let arrivalsByMinute = Array.from({ length: 1440 }, () => []);
+let stationFlow = d3.scaleQuantize().domain([0, 1]).range([0, 0.5, 1]);
 
 map.on('load', async () => {
   //code
@@ -148,6 +149,9 @@ map.on('load', async () => {
       .attr('stroke', 'white') // Circle border color
       .attr('stroke-width', 1) // Circle border thickness
       .attr('opacity', 0.8) // Circle opacity
+      .style('--departure-ratio', (d) =>
+        stationFlow(d.departures / d.totalTraffic),
+      )
       .each(function (d) {
         // Add <title> for browser tooltips
         d3.select(this)
@@ -156,12 +160,14 @@ map.on('load', async () => {
             `${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`,
           );
       });
+
     // Function to update circle positions when the map moves/zooms
     function updatePositions() {
       circles
         .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
         .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
     }
+
     function updateTimeDisplay() {
       let timeFilter = Number(timeSlider.value); // Get slider value
 
@@ -185,7 +191,10 @@ map.on('load', async () => {
       circles
         .data(filteredStations, (d) => d.short_name)
         .join('circle') // Ensure the data is bound correctly
-        .attr('r', (d) => radiusScale(d.totalTraffic)); // Update circle sizes
+        .attr('r', (d) => radiusScale(d.totalTraffic)) // Update circle sizes
+        .style('--departure-ratio', (d) =>
+          stationFlow(d.departures / d.totalTraffic),
+        );
     }
 
     timeSlider.addEventListener('input', updateTimeDisplay);

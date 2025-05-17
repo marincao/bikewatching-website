@@ -1,3 +1,8 @@
+:root {
+  --color-departures: steelblue;
+  --color-arrivals: darkorange;
+}
+
 html,
 body {
   margin: 0;
@@ -24,7 +29,12 @@ body {
 }
 
 #map svg circle{
-  fill: steelblue;
+  --color: color-mix(
+    in oklch,
+    var(--color-departures) calc(100% * var(--departure-ratio)),
+    var(--color-arrivals)
+  );
+  fill: var(--color);
   fill-opacity: 60%;
   stroke: white;
   pointer-events: auto;
@@ -53,4 +63,25 @@ header em {
 
 input[type='range'] {
   width: 300px;
+}
+
+.legend {
+  display: flex;
+  gap: 1px;
+  margin-block: 1em;
+}
+
+.legend > div {
+  flex: 1;
+  padding: 0.5em 1em;
+  color: white;
+  --color: color-mix(
+    in oklch,
+    var(--color-departures) calc(100% * var(--departure-ratio)),
+    var(--color-arrivals)
+  );
+  background: var(--color);
+  font-size: 1em;
+  text-align: center;
+  font: 500;
 }
